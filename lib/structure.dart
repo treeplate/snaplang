@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 class Project {
   String name;
   late List<Scene> scenes = [Scene(name: name)];
+  int currentScene = 0;
 
   Project({required this.name});
   XmlDocument serialize() {
@@ -13,7 +14,7 @@ class Project {
           XmlAttribute(XmlName('name'), name),
           XmlAttribute(
             XmlName('app'),
-            'TreeSnap 0.0.1, https://treeplate.damowmow.com/snap',
+            'TreeSnap 0.0.2, https://treeplate.damowmow.com/snap',
           ),
           XmlAttribute(XmlName('version'), '2'),
         ],
@@ -22,7 +23,7 @@ class Project {
           // <thumbnail>
           XmlElement(
             XmlName('scenes'),
-            [XmlAttribute(XmlName('select'), '1')],
+            [XmlAttribute(XmlName('select'), (currentScene+1).toString())],
             [...scenes.map((e) => e.serialize())],
           ),
         ],
@@ -34,6 +35,7 @@ class Project {
 class Scene {
   String name;
   List<Sprite> sprites = [Sprite(name: 'Sprite')];
+  int currentSprite = 0;
 
   Scene({required this.name});
   XmlElement serialize() {
@@ -78,7 +80,7 @@ class Scene {
             XmlElement(XmlName('scripts'), [], []),
             XmlElement(
               XmlName('sprites'),
-              [XmlAttribute(XmlName('select'), '1')],
+              [XmlAttribute(XmlName('select'), (currentSprite+1).toString())],
               [...sprites.map((e) => e.serialize())],
             ),
           ],
