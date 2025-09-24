@@ -1,0 +1,24 @@
+<project name="Test-Cat" app="TreeSnap 0.0.1, https://treeplate.damowmow.com/snap" version="2">
+  <scenes select="1">
+    <scene name="Test-Cat">
+      <stage name="Stage" inheritance="true">
+        <variables/>
+        <blocks/>
+        <scripts/>
+        <sprites select="1">
+          <sprite name="Sprite" draggable="true">
+            <blocks/>
+            <variables/>
+            <scripts>
+              <script x="100.0" y="100.0">
+                <block s="reportBoolean">
+                  <block s="reportBoolean"/>
+                </block>
+              </script>
+            </scripts>
+          </sprite>
+        </sprites>
+      </stage>
+    </scene>
+  </scenes>
+</project>
