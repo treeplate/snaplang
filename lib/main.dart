@@ -221,12 +221,16 @@ class _MyAppState extends State<MyApp> {
               onAcceptWithDetails: (details) {
                 setState(() {
                   sprite.scripts.remove(details.data.$1);
-                  sprite.scripts.add(
-                    Script(
-                      x: details.offset.dx,
-                      y: details.offset.dy - appBarHeight,
-                    )..blocks.add(Block(details.data.$2.text)),
+                  Script script = Script(
+                    x: details.offset.dx,
+                    y: details.offset.dy - appBarHeight,
                   );
+                  sprite.scripts.add(script);
+                  if (details.data.$1 == null) {
+                    script.blocks.add(Block(details.data.$2.text));
+                  } else {
+                    script.blocks.addAll(details.data.$1!.blocks);
+                  }
                 });
               },
               builder: (context, _, _) => SizedBox.expand(
@@ -239,7 +243,7 @@ class _MyAppState extends State<MyApp> {
                         child: DraggableScript(
                           script: e,
                           blockName: TextEditingController(
-                            text: e.blocks.single.name,
+                            text: e.blocks.first.name,
                           ),
                         ),
                       ),
@@ -303,42 +307,77 @@ class _ScriptWidgetState extends State<ScriptWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return CommandShapeWidget(
-      color: Colors.orange,
-      child: Material(
-        child: SizedBox(
-          height: 25,
-          child: IntrinsicWidth(
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(offset: Offset(-1, -2), color: Colors.black45),
-                ],
-              ),
-              child: TextField(
-                controller: widget.blockName,
-                style: TextStyle(color: Colors.black),
-                cursorColor: Colors.black,
-                cursorHeight: 20,
-                cursorWidth: 1,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(0),
-                    gapPadding: 5,
-                  ),
-                  contentPadding: EdgeInsets.all(0),
-                  fillColor: Colors.white,
-                  filled: true,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...(widget.script?.blocks ?? [Block(widget.blockName.text)]).map(
+          (block) => CommandShapeWidget(
+            color: Colors.orange,
+            child: Material(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 25,
+                    child: IntrinsicWidth(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(-1, -2),
+                              color: Colors.black45,
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: TextEditingController(text: block.name),
+                          style: TextStyle(color: Colors.black),
+                          cursorColor: Colors.black,
+                          cursorHeight: 20,
+                          cursorWidth: 1,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(0),
+                              gapPadding: 5,
+                            ),
+                            contentPadding: EdgeInsets.all(0),
+                            fillColor: Colors.white,
+                            filled: true,
+                          ),
 
-                onChanged: (e) {
-                  widget.script?.blocks.single.name = e;
-                },
+                          onChanged: (e) {
+                            block.name = e;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: widget.script == null
+                        ? null
+                        : () {
+                            setState(() {
+                              widget.script!.blocks.insert(widget.script!.blocks.indexOf(block)+1, Block(''));
+                            });
+                          },
+                    icon: Icon(Icons.add),
+                  ),
+                  IconButton(
+                    onPressed: widget.script == null
+                        ? null
+                        : () {
+                            setState(() {
+                              widget.script!.blocks.remove(block);
+                            });
+                          },
+                    icon: Icon(Icons.remove),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -396,26 +435,15 @@ class CommandShapeRenderBox extends RenderShiftedBox {
     path = Path();
     path!.moveTo(cornerSize, 0);
     path!.lineTo(connectorXOffset, 0);
-    path!.lineTo(
-      connectorXOffset + connectorSideWidth,
-      connectorHeight,
-    );
+    path!.lineTo(connectorXOffset + connectorSideWidth, connectorHeight);
     path!.lineTo(
       connectorXOffset + connectorWidth - connectorSideWidth,
       connectorHeight,
     );
     path!.lineTo(connectorXOffset + connectorWidth, 0);
     path!.lineTo(size.width - cornerSize, 0);
-    path!.quadraticBezierTo(
-      size.width,
-      0,
-      size.width,
-      cornerSize,
-    );
-    path!.lineTo(
-      size.width,
-      size.height - connectorHeight - cornerSize,
-    );
+    path!.quadraticBezierTo(size.width, 0, size.width, cornerSize);
+    path!.lineTo(size.width, size.height - connectorHeight - cornerSize);
     path!.quadraticBezierTo(
       size.width,
       size.height - connectorHeight,
@@ -430,18 +458,9 @@ class CommandShapeRenderBox extends RenderShiftedBox {
       connectorXOffset + connectorWidth - connectorSideWidth,
       size.height,
     );
-    path!.lineTo(
-      connectorXOffset + connectorSideWidth,
-      size.height,
-    );
-    path!.lineTo(
-      connectorXOffset,
-      size.height - connectorHeight,
-    );
-    path!.lineTo(
-      cornerSize,
-      size.height - connectorHeight,
-    );
+    path!.lineTo(connectorXOffset + connectorSideWidth, size.height);
+    path!.lineTo(connectorXOffset, size.height - connectorHeight);
+    path!.lineTo(cornerSize, size.height - connectorHeight);
     path!.quadraticBezierTo(
       0,
       size.height - connectorHeight,
@@ -449,12 +468,7 @@ class CommandShapeRenderBox extends RenderShiftedBox {
       size.height - connectorHeight - cornerSize,
     );
     path!.lineTo(0, cornerSize);
-    path!.quadraticBezierTo(
-      0,
-      0,
-      cornerSize,
-      0,
-    );
+    path!.quadraticBezierTo(0, 0, cornerSize, 0);
   }
 
   @override

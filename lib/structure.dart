@@ -1,6 +1,6 @@
 import 'package:xml/xml.dart';
 
-const String version = '0.0.4';
+const String version = '0.1.0';
 
 class Project {
   String name;
