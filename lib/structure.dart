@@ -14,7 +14,7 @@ class Project {
           XmlAttribute(XmlName('name'), name),
           XmlAttribute(
             XmlName('app'),
-            'TreeSnap 0.0.2, https://treeplate.damowmow.com/snap',
+            'TreeSnap 0.0.3, https://treeplate.damowmow.com/snap',
           ),
           XmlAttribute(XmlName('version'), '2'),
         ],
