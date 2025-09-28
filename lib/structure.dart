@@ -1,5 +1,7 @@
 import 'package:xml/xml.dart';
 
+const String version = '0.0.4';
+
 class Project {
   String name;
   late List<Scene> scenes = [Scene(name: name)];
@@ -14,7 +16,7 @@ class Project {
           XmlAttribute(XmlName('name'), name),
           XmlAttribute(
             XmlName('app'),
-            'TreeSnap 0.0.4, https://treeplate.damowmow.com/snap',
+            'TreeSnap $version, https://treeplate.damowmow.com/snap',
           ),
           XmlAttribute(XmlName('version'), '2'),
         ],

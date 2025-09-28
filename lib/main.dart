@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
             appBar: AppBar(
               toolbarHeight: appBarHeight,
               title: Text(
-                'TreeSnap: ${project.name}/${scene.name}/${sprite.name}',
+                'TreeSnap $version: ${project.name}/${scene.name}/${sprite.name}',
               ),
               actions: [
                 IconButton(
