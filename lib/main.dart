@@ -363,77 +363,12 @@ class CommandShapeRenderBox extends RenderShiftedBox {
   static const double connectorXOffset = 15;
   static const double minHeight = padding * 2 + connectorHeight * 2;
   static const double cornerSize = 5;
+  Path? path;
 
   CommandShapeRenderBox({required this.color}) : super(null);
   @override
   void paint(PaintingContext context, Offset offset) {
-    // context.canvas.drawRRect(
-    //   RRect.fromRectXY(offset & size, 5, 5),
-    //   Paint()..color=color,
-    // );
-    Path path = Path();
-    path.moveTo(offset.dx + cornerSize, offset.dy);
-    path.lineTo(offset.dx + connectorXOffset, offset.dy);
-    path.lineTo(
-      offset.dx + connectorXOffset + connectorSideWidth,
-      offset.dy + connectorHeight,
-    );
-    path.lineTo(
-      offset.dx + connectorXOffset + connectorWidth - connectorSideWidth,
-      offset.dy + connectorHeight,
-    );
-    path.lineTo(offset.dx + connectorXOffset + connectorWidth, offset.dy);
-    path.lineTo(offset.dx + size.width - cornerSize, offset.dy);
-    path.quadraticBezierTo(
-      offset.dx + size.width,
-      offset.dy,
-      offset.dx + size.width,
-      offset.dy + cornerSize,
-    );
-    path.lineTo(
-      offset.dx + size.width,
-      offset.dy + size.height - connectorHeight - cornerSize,
-    );
-    path.quadraticBezierTo(
-      offset.dx + size.width,
-      offset.dy + size.height - connectorHeight,
-      offset.dx + size.width - cornerSize,
-      offset.dy + size.height - connectorHeight,
-    );
-    path.lineTo(
-      offset.dx + connectorXOffset + connectorWidth,
-      offset.dy + size.height - connectorHeight,
-    );
-    path.lineTo(
-      offset.dx + connectorXOffset + connectorWidth - connectorSideWidth,
-      offset.dy + size.height,
-    );
-    path.lineTo(
-      offset.dx + connectorXOffset + connectorSideWidth,
-      offset.dy + size.height,
-    );
-    path.lineTo(
-      offset.dx + connectorXOffset,
-      offset.dy + size.height - connectorHeight,
-    );
-    path.lineTo(
-      offset.dx + cornerSize,
-      offset.dy + size.height - connectorHeight,
-    );
-    path.quadraticBezierTo(
-      offset.dx,
-      offset.dy + size.height - connectorHeight,
-      offset.dx,
-      offset.dy + size.height - connectorHeight - cornerSize,
-    );
-    path.lineTo(offset.dx, offset.dy + cornerSize);
-    path.quadraticBezierTo(
-      offset.dx,
-      offset.dy,
-      offset.dx + cornerSize,
-      offset.dy,
-    );
-    context.canvas.drawPath(path, Paint()..color = color);
+    context.canvas.drawPath(path!.shift(offset), Paint()..color = color);
     super.paint(context, offset);
   }
 
@@ -458,47 +393,72 @@ class CommandShapeRenderBox extends RenderShiftedBox {
         child!.size.height + padding * 2 + connectorHeight * 2,
       );
     }
+    path = Path();
+    path!.moveTo(cornerSize, 0);
+    path!.lineTo(connectorXOffset, 0);
+    path!.lineTo(
+      connectorXOffset + connectorSideWidth,
+      connectorHeight,
+    );
+    path!.lineTo(
+      connectorXOffset + connectorWidth - connectorSideWidth,
+      connectorHeight,
+    );
+    path!.lineTo(connectorXOffset + connectorWidth, 0);
+    path!.lineTo(size.width - cornerSize, 0);
+    path!.quadraticBezierTo(
+      size.width,
+      0,
+      size.width,
+      cornerSize,
+    );
+    path!.lineTo(
+      size.width,
+      size.height - connectorHeight - cornerSize,
+    );
+    path!.quadraticBezierTo(
+      size.width,
+      size.height - connectorHeight,
+      size.width - cornerSize,
+      size.height - connectorHeight,
+    );
+    path!.lineTo(
+      connectorXOffset + connectorWidth,
+      size.height - connectorHeight,
+    );
+    path!.lineTo(
+      connectorXOffset + connectorWidth - connectorSideWidth,
+      size.height,
+    );
+    path!.lineTo(
+      connectorXOffset + connectorSideWidth,
+      size.height,
+    );
+    path!.lineTo(
+      connectorXOffset,
+      size.height - connectorHeight,
+    );
+    path!.lineTo(
+      cornerSize,
+      size.height - connectorHeight,
+    );
+    path!.quadraticBezierTo(
+      0,
+      size.height - connectorHeight,
+      0,
+      size.height - connectorHeight - cornerSize,
+    );
+    path!.lineTo(0, cornerSize);
+    path!.quadraticBezierTo(
+      0,
+      0,
+      cornerSize,
+      0,
+    );
   }
 
   @override
   bool hitTestSelf(Offset position) {
-    if (position.dy < size.height - connectorHeight &&
-        position.dy > connectorHeight) {
-      return true;
-    }
-    if (position.dx < connectorXOffset &&
-        position.dy < size.height - connectorHeight) {
-      return true;
-    }
-    if (position.dx > connectorXOffset + connectorWidth &&
-        position.dy < size.height - connectorHeight) {
-      return true;
-    }
-    if (position.dx > connectorXOffset + connectorSideWidth &&
-        position.dx < connectorXOffset + connectorWidth - connectorSideWidth &&
-        position.dy > connectorHeight) {
-      return true;
-    }
-    double slope = connectorHeight / connectorSideWidth;
-    if (position.dy < connectorHeight) {
-      if (position.dx - position.dy / slope < connectorXOffset) {
-        return true;
-      }
-      if (position.dx + position.dy / slope >
-          connectorXOffset + connectorWidth) {
-        return true;
-      }
-      return false;
-    }
-    if (position.dy > size.height - connectorHeight) {
-      if (position.dx - (position.dy - size.height + connectorHeight) / slope < connectorXOffset) {
-        return false;
-      }
-      if (position.dx + (position.dy - size.height + connectorHeight) / slope >
-          connectorXOffset + connectorWidth) {
-        return false;
-      }
-    }
-    return true;
+    return path!.contains(position);
   }
 }
