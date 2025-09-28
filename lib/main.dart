@@ -479,6 +479,26 @@ class CommandShapeRenderBox extends RenderShiftedBox {
         position.dy > connectorHeight) {
       return true;
     }
-    return false;
+    double slope = connectorHeight / connectorSideWidth;
+    if (position.dy < connectorHeight) {
+      if (position.dx - position.dy / slope < connectorXOffset) {
+        return true;
+      }
+      if (position.dx + position.dy / slope >
+          connectorXOffset + connectorWidth) {
+        return true;
+      }
+      return false;
+    }
+    if (position.dy > size.height - connectorHeight) {
+      if (position.dx - (position.dy - size.height + connectorHeight) / slope < connectorXOffset) {
+        return false;
+      }
+      if (position.dx + (position.dy - size.height + connectorHeight) / slope >
+          connectorXOffset + connectorWidth) {
+        return false;
+      }
+    }
+    return true;
   }
 }
